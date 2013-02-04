@@ -1,0 +1,4 @@
+synonimy
+========
+
+synonimy
