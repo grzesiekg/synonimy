@@ -1,4 +1,5 @@
 use CGI qw/:standard/;
+use Switch;
 
 #stworzenie strony z formularzem wyboru operacji
 print
@@ -16,6 +17,12 @@ hr,"\n";
 
 if (param)
 {
-	print "done";
+	$x=param('operacja');
+	switch($x)
+	{
+		case "szukaj" {print "szukaj"}
+		case "dodaj" {print "dodaj"}
+		case "usuń" {print "usuń"}
+	}
 }
 print end_html;
