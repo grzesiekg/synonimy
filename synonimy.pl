@@ -39,9 +39,9 @@ if (param)
 				$sth = $dbh->prepare( "
 			            SELECT wyraz1, wyraz2, wyraz3
 			            FROM synonimy
-			            WHERE wyraz1 = " . $dbh->quote( $w1 ) . "
-					OR wyraz2 = " . $dbh->quote( $w1 ) . "
-					OR wyraz3 = " . $dbh->quote( $w1 ) . "
+			            WHERE wyraz1 = '$w1'
+					OR wyraz2 = '$w1'
+					OR wyraz3 = '$w1'
 				        " );
 				$sth->execute
 				or die "SQL Error: $DBI::errstr\n";
@@ -54,6 +54,7 @@ if (param)
 					print "Nie znaleziono wyrazu";
 				}
 				$sth->finish;
+				$dbh->disconnect();
 			}else
 			{
 				print "Nie podałeś wyrazu";
@@ -70,9 +71,9 @@ if (param)
 				$sth = $dbh->prepare( "
 			            SELECT id
 			            FROM synonimy
-			            WHERE wyraz1 = " . $dbh->quote( $w1 ) . "
-					OR wyraz2 = " . $dbh->quote( $w1 ) . "
-					OR wyraz3 = " . $dbh->quote( $w1 ) . "
+			            WHERE wyraz1 = '$w1'
+					OR wyraz2 = '$w1'
+					OR wyraz3 = '$w1'
 				        " );
 				$sth->execute
 				or die "SQL Error: $DBI::errstr\n";
@@ -87,9 +88,9 @@ if (param)
 				$sth = $dbh->prepare( "
 			            SELECT id
 			            FROM synonimy
-			            WHERE wyraz1 = " . $dbh->quote( $w2 ) . "
-					OR wyraz2 = " . $dbh->quote( $w2 ) . "
-					OR wyraz3 = " . $dbh->quote( $w2 ) . "
+			            WHERE wyraz1 = '$w2'
+					OR wyraz2 = '$w2'
+					OR wyraz3 = '$w2'
 				        " );
 				$sth->execute
 				or die "SQL Error: $DBI::errstr\n";
@@ -98,10 +99,25 @@ if (param)
 				{$id2=0;}
 			}else
 			{$id2=0}
-
+#jeżeli oba wyrazy są w bazie to nie dodajemy
 			if ($id1>0 && $id2>0)
 			{
 				print "Wyrazy są już w bazie";
+				$sth->finish;
+				$dbh->disconnect();
+			}
+#jeżeli obu wyrazów nie ma to dodajemy nowy rekord			
+			elsif ($id1==0 && $id2==0)
+			{
+				$sth = $dbh->prepare("
+					INSERT INTO synonimy (wyraz1, wyraz2)
+					VALUES ('$w1', '$w2')
+					");
+				$sth->execute
+				or die "SQL Error: $DBI::errstr\n";
+				$sth->finish;
+				$dbh->disconnect();
+				print "Wyrazy dodane"
 			}	
 		}
 		case "usuń" {print "usuń"}
