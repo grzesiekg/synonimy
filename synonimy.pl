@@ -91,7 +91,7 @@ if (param)
 				$dbh->{'mysql_enable_utf8'} = 1;
 				$dbh->do('SET NAMES utf8');
 				$sth = $dbh->prepare( "
-			            SELECT id
+			            SELECT *
 			            FROM synonimy
 			            WHERE wyraz1 = '$w2'
 					OR wyraz2 = '$w2'
@@ -138,13 +138,31 @@ if (param)
 						$dbh->do("UPDATE synonimy SET wyraz2='$w2' WHERE id=$id1");
 						$sth->finish;
 						$dbh->disconnect();
-						print "Wyraz dodany";
+						print "Wyraz dodany: $w2";
 					}else
 					{
 						$dbh->do("UPDATE synonimy SET wyraz3='$w2' WHERE id=$id1");
 						$sth->finish;
 						$dbh->disconnect();
-						print "Wyraz dodany";
+						print "Wyraz dodany: $w2";
+					}
+				}else
+				{
+					if ($row2[3])
+					{
+						print "Nie ma miejsca na dodanie wyrazu: $w1";
+					}elsif (!$row2[2])
+					{
+						$dbh->do("UPDATE synonimy SET wyraz2='$w1' WHERE id=$id2");
+						$sth->finish;
+						$dbh->disconnect();
+						print "Wyraz dodany: $w1";
+					}else
+					{
+						$dbh->do("UPDATE synonimy SET wyraz3='$w1' WHERE id=$id2");
+						$sth->finish;
+						$dbh->disconnect();
+						print "Wyraz dodany: $w1";
 					}
 				}
 			}	
