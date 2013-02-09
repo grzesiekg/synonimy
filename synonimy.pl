@@ -69,7 +69,7 @@ if (param)
 				$dbh->{'mysql_enable_utf8'} = 1;
 				$dbh->do('SET NAMES utf8');
 				$sth = $dbh->prepare( "
-			            SELECT id
+			            SELECT *
 			            FROM synonimy
 			            WHERE wyraz1 = '$w1'
 					OR wyraz2 = '$w1'
@@ -77,14 +77,19 @@ if (param)
 				        " );
 				$sth->execute
 				or die "SQL Error: $DBI::errstr\n";
-				$id1 = $sth->fetchrow_array;
+				@row1 = $sth->fetchrow_array;
 				if ($sth->rows == 0)
-				{$id1=0;}
+				{$id1=0;}else
+				{$id1=$row1[0];}
 			}else
 			{$id1=0;}
 #sprawdzenie czy wyraz2 jest w bazie i pobranie wiersza w ktorym sie znajduje
 			if ($w2)
 			{
+				$dbh = DBI->connect('dbi:mysql:grzesiekg','grzesiekg','perltest123')
+				or die "Connection Error: $DBI::errstr\n";
+				$dbh->{'mysql_enable_utf8'} = 1;
+				$dbh->do('SET NAMES utf8');
 				$sth = $dbh->prepare( "
 			            SELECT id
 			            FROM synonimy
@@ -94,13 +99,14 @@ if (param)
 				        " );
 				$sth->execute
 				or die "SQL Error: $DBI::errstr\n";
-				$id2 = $sth->fetchrow_array;
+				@row2 = $sth->fetchrow_array;
 				if ($sth->rows == 0)
-				{$id2=0;}
+				{$id2=0;}else
+				{$id2=$row2[0];}
 			}else
 			{$id2=0}
 #jeżeli oba wyrazy są w bazie to nie dodajemy
-			if ($id1>0 && $id2>0)
+			if (($id1>0 && $id2>0) || ($id1>0 && !$w2) || ($id2>0 && !$w1))
 			{
 				print "Wyrazy są już w bazie";
 				$sth->finish;
@@ -118,6 +124,29 @@ if (param)
 				$sth->finish;
 				$dbh->disconnect();
 				print "Wyrazy dodane"
+			}
+#jeżeli jest jeden wyraz to dodajemy do niego drugi, jeżeli jest jeszcze miejsce			
+			else
+			{
+				if ($id1)
+				{
+					if ($row1[3])
+					{
+						print "Nie ma miejsca na dodanie wyrazu: $w2";
+					}elsif (!$row1[2])
+					{
+						$dbh->do("UPDATE synonimy SET wyraz2='$w2' WHERE id=$id1");
+						$sth->finish;
+						$dbh->disconnect();
+						print "Wyraz dodany";
+					}else
+					{
+						$dbh->do("UPDATE synonimy SET wyraz3='$w2' WHERE id=$id1");
+						$sth->finish;
+						$dbh->disconnect();
+						print "Wyraz dodany";
+					}
+				}
 			}	
 		}
 		case "usuń" {print "usuń"}
