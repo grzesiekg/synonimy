@@ -10,7 +10,7 @@ print
 	start_form,
 	"Wybierz operację",
 	popup_menu(-name=>'operacja',
-			-values=>['szukaj', 'dodaj','usuń']),p,
+			-values=>['szukaj', 'dodaj','usuń','popraw']),p,
 	"Wyraz główny ", textfield('wyraz1'),p,
 	"Alternatywa", textfield('wyraz2'),p,
 	submit('Wybierz'),
@@ -195,13 +195,13 @@ if (param)
 				elsif (!$row[2])
 				{
 					$dbh->do("DELETE FROM synonimy WHERE id=$id");
-					print "Wyraz $w1 usunięty";
+					print "Wyraz: $w1 usunięty";
 				}
 #jeżeli ostatni wyraz w wierszu jest szukanym to wstawiamy tam nulla				
 				elsif ($row[3] eq $w1)
 				{
 					$dbh->do("UPDATE synonimy SET wyraz3=NULL WHERE id=$id");
-					print "Wyraz $w1 usunięty";
+					print "Wyraz: $w1 usunięty";
 				}
 #jeżeli grupa ma tylko 2 wyrazy to kasujemy szukany i w razie konieczności kasujemy wyraz1 i wstawiamy na jego miejsce wyraz2			
 				elsif (!$row[3])
@@ -209,11 +209,11 @@ if (param)
 					if ($row[2] eq $w1)
 					{
 						$dbh->do("UPDATE synonimy SET wyraz2=NULL WHERE id=$id");
-						print "Wyraz $w1 usunięty";
+						print "Wyraz: $w1 usunięty";
 					}else
 					{
 						$dbh->do("UPDATE synonimy SET wyraz1='$row[2]', wyraz2=NULL WHERE id=$id");
-						print "Wyraz $w1 usunięty";
+						print "Wyraz: $w1 usunięty";
 					}
 				}
 #to samo co wyżej tylko dla grupy 3 wyrazów				
@@ -222,11 +222,11 @@ if (param)
 					if ($row[2] eq $w1)
 					{
 						$dbh->do("UPDATE synonimy SET wyraz2='$row[3]', wyraz3=NULL WHERE id=$id");
-						print "Wyraz $w1 usunięty";
+						print "Wyraz: $w1 usunięty";
 					}else
 					{
 						$dbh->do("UPDATE synonimy SET wyraz1='$row[3]', wyraz3=NULL WHERE id=$id");
-						print "Wyraz $w1 usunięty";
+						print "Wyraz: $w1 usunięty";
 					}
 				}
 				
@@ -236,6 +236,54 @@ if (param)
 			}else
 			{
 				print "Nie podałeś wyrazu";
+			}
+		}
+		
+		case "popraw"{
+			if ($w1 && $w2)
+			{
+#ustanowienie połączenia z bazą danych, przygotowanie zapytania do wykonania w bazie
+				$dbh = DBI->connect('dbi:mysql:grzesiekg','grzesiekg','perltest123')
+				or die "Connection Error: $DBI::errstr\n";
+				$dbh->{'mysql_enable_utf8'} = 1;
+				$dbh->do('SET NAMES utf8');
+				$sth = $dbh->prepare( "
+			            SELECT *
+			            FROM synonimy
+			            WHERE wyraz1 = '$w1'
+					OR wyraz2 = '$w1'
+					OR wyraz3 = '$w1'
+				        " );
+				$sth->execute
+				or die "SQL Error: $DBI::errstr\n";
+				@row = $sth->fetchrow_array;
+				$id=$row[0];
+				if ($sth->rows == 0)
+				{
+					print "Nie znaleziono wyrazu";
+				}
+#podstawiamy wyraz2 za wyraz1 w bazie				
+				else
+				{
+					if ($row[1] eq $w1)
+					{
+						$dbh->do("UPDATE synonimy SET wyraz1='$w2' WHERE id=$id");
+					}elsif ($row[2] eq $w1)
+					{
+						$dbh->do("UPDATE synonimy SET wyraz2='$w2' WHERE id=$id");
+					}else
+					{
+						$dbh->do("UPDATE synonimy SET wyraz3='$w2' WHERE id=$id");
+					}
+					
+					print "Wyraz: $w1 poprawiony na: $w2";
+				}
+				
+				$sth->finish;
+				$dbh->disconnect();
+			}else
+			{
+				print "Nie podałeś wyrazów";
 			}
 		}
 	}
