@@ -2,6 +2,7 @@ use CGI qw/:standard/;
 use Switch;
 use DBI;
 
+
 #stworzenie strony z formularzem wyboru operacji i polami do wpisywania wyrazów
 print
 	header(-charset=>'utf-8'),
@@ -47,6 +48,7 @@ if (param)
 				or die "SQL Error: $DBI::errstr\n";
 #wyświetlenie wyników zapytania lub informacji o ich braku
 				while (@row = $sth->fetchrow_array) {
+					binmode STDOUT, ":encoding(utf8)";
 					print "@row \n";
 				}
 				if ($sth->rows == 0)

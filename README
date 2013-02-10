@@ -1,1 +1,24 @@
-test
+SYNONIMY 
+Opis i obsługa.
+
+Program umożliwa szukanie, dodawanie, usuwanie i poprawianie wyrazów bliskoznacznych. Operacje wykonywane są w momencie kliknięcia przycisku "WYBIERZ". Przycisk "WYCZYŚĆ" czyści stronę do postaci pierwotnej.
+
+Menu główne "Wybierz operację" pozwala na wybór jednej ze wskazanych wyżej opcji:
+1. SZUKAJ
+Wyszukuje wyraz wprowadzony w polu "Wyraz główny" (pole "Alternatywa" nie jest wykorzystywane). W przypadku znalezienia wyniku grupa wyrazów bliskoznacznych jest zwracana na dole pod poziomym paskiem. W przypadku braku wyrazu w bazie informacja o tym jest także zwracana na dole.
+
+2. DODAJ
+Dodaje wyraz lub wyraz wraz z synonimem do bazy. Wyrazy można wpisywać w obu polach formularza (także pojedynczo).
+Jeżeli żaden z wyrazów nie występuje w bazie są one dodawane do nowego rekordu. Jeżeli jeden z wyrazów jest już w bazie, drugi jest dodawany jako jego synonim (jeżeli nie przekroczyliśmy limitu 3 wyrazów w grupie). Jeżeli oba wyrazy są już w bazie zwracana jest odpowiednia informacja.
+
+3. USUŃ
+Usuwa wyraz wprowadzony w polu "Wyraz główny" z bazy (jeżeli wyraz istnieje w bazie).
+Jeżeli usuwany wyraz nie ma synonimów usuwany jest caly wiersz bazy. W przypadku istnienia synonimów ostatni jest przenoszony na miejsce tego usuniętego z bazy.
+
+4. POPRAW
+Poprawia wyraz w bazie. Wyraz do poprawy należy wpisać w polu "Wyraz główny", jest on wtedy zamieniany na ten z pola "Alternatywa".
+
+UWAGI:
+- Grupa synonimów może liczyć maksymalnie 3 wyrazy, dodawanie kolejnych po osiągnięciu tej wartości nie jest możliwe.
+- Program nie oferuje możliwości łączenia grup. Jeżeli wyrazy w dwóch różnych grupach są synonimami, konieczne byłoby usunięcie wyrazów z jednej grupy i dodanie ich do drugiej.
+- Program dostępny jest pod adresem http://grzesiekg.home.pl/synonimy/synonimy.pl (l: synonimy, h: homepl123).
