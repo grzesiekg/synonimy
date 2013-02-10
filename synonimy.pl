@@ -167,7 +167,42 @@ if (param)
 				}
 			}	
 		}
-		case "usuń" {print "usuń"}
+		case "usuń" {print "usuń";
+			if ($w1)
+			{
+#ustanowienie połączenia z bazą danych, przygotowanie zapytania do wykonania w bazie
+				$dbh = DBI->connect('dbi:mysql:grzesiekg','grzesiekg','perltest123')
+				or die "Connection Error: $DBI::errstr\n";
+				$dbh->{'mysql_enable_utf8'} = 1;
+				$dbh->do('SET NAMES utf8');
+				$sth = $dbh->prepare( "
+			            SELECT *
+			            FROM synonimy
+			            WHERE wyraz1 = '$w1'
+					OR wyraz2 = '$w1'
+					OR wyraz3 = '$w1'
+				        " );
+				$sth->execute
+				or die "SQL Error: $DBI::errstr\n";
+				@row = $sth->fetchrow_array;
+				if ($sth->rows == 0)
+				{
+					print "Nie znaleziono wyrazu";
+				}
+				
+				
+				if ($row[1] eq $w1)
+				{
+					$dbh->do("DELETE FROM synonimy WHERE id=$row[0]");
+				}
+				
+				$sth->finish;
+				$dbh->disconnect();
+			}else
+			{
+				print "Nie podałeś wyrazu";
+			}
+		}
 	}
 }
 print end_html;
