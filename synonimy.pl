@@ -167,7 +167,7 @@ if (param)
 				}
 			}	
 		}
-		case "usuń" {print "usuń";
+		case "usuń" {
 			if ($w1)
 			{
 #ustanowienie połączenia z bazą danych, przygotowanie zapytania do wykonania w bazie
@@ -185,16 +185,51 @@ if (param)
 				$sth->execute
 				or die "SQL Error: $DBI::errstr\n";
 				@row = $sth->fetchrow_array;
+				$id=$row[0];
 				if ($sth->rows == 0)
 				{
 					print "Nie znaleziono wyrazu";
 				}
 				
-				
-				if ($row[1] eq $w1)
+#jeżeli jest tylko jeden wyraz w wierszu kasujemy cały wiersz				
+				elsif (!$row[2])
 				{
-					$dbh->do("DELETE FROM synonimy WHERE id=$row[0]");
+					$dbh->do("DELETE FROM synonimy WHERE id=$id");
+					print "Wyraz $w1 usunięty";
 				}
+#jeżeli ostatni wyraz w wierszu jest szukanym to wstawiamy tam nulla				
+				elsif ($row[3] eq $w1)
+				{
+					$dbh->do("UPDATE synonimy SET wyraz3=NULL WHERE id=$id");
+					print "Wyraz $w1 usunięty";
+				}
+#jeżeli grupa ma tylko 2 wyrazy to kasujemy szukany i w razie konieczności kasujemy wyraz1 i wstawiamy na jego miejsce wyraz2			
+				elsif (!$row[3])
+				{
+					if ($row[2] eq $w1)
+					{
+						$dbh->do("UPDATE synonimy SET wyraz2=NULL WHERE id=$id");
+						print "Wyraz $w1 usunięty";
+					}else
+					{
+						$dbh->do("UPDATE synonimy SET wyraz1='$row[2]', wyraz2=NULL WHERE id=$id");
+						print "Wyraz $w1 usunięty";
+					}
+				}
+#to samo co wyżej tylko dla grupy 3 wyrazów				
+				else
+				{
+					if ($row[2] eq $w1)
+					{
+						$dbh->do("UPDATE synonimy SET wyraz2='$row[3]', wyraz3=NULL WHERE id=$id");
+						print "Wyraz $w1 usunięty";
+					}else
+					{
+						$dbh->do("UPDATE synonimy SET wyraz1='$row[3]', wyraz3=NULL WHERE id=$id");
+						print "Wyraz $w1 usunięty";
+					}
+				}
+				
 				
 				$sth->finish;
 				$dbh->disconnect();
