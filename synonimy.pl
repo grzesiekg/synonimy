@@ -25,18 +25,23 @@ if (param)
 	$x=param('operacja');
 	$w1=param('wyraz1');
 	$w2=param('wyraz2');
-
+	$dbhost='grzesiekg';
+	$dbuser='grzesiekg';
+	$dbpass='perltest123';
+#połączenie z bazą danych
+	$dbh = DBI->connect("dbi:mysql:$dbhost","$dbuser","$dbpass")
+				or die "Connection Error: $DBI::errstr\n";
+	$dbh->{'mysql_enable_utf8'} = 1;
+	$dbh->do('SET NAMES utf8');
+	
 #uruchomienie czynności w zależności od wybranej operacji
 	switch($x)
 	{
 		case "szukaj" {
 			if ($w1)
 			{
-#ustanowienie połączenia z bazą danych, przygotowanie zapytania do wykonania w bazie
-				$dbh = DBI->connect('dbi:mysql:grzesiekg','grzesiekg','perltest123')
-				or die "Connection Error: $DBI::errstr\n";
-				$dbh->{'mysql_enable_utf8'} = 1;
-				$dbh->do('SET NAMES utf8');
+#przygotowanie zapytania do wykonania w bazie
+			
 				$sth = $dbh->prepare( "
 			            SELECT wyraz1, wyraz2, wyraz3
 			            FROM synonimy
@@ -55,21 +60,18 @@ if (param)
 				{
 					print "Nie znaleziono wyrazu";
 				}
-				$sth->finish;
-				$dbh->disconnect();
+				
 			}else
 			{
 				print "Nie podałeś wyrazu";
+				$sth->finish;
+				$dbh->disconnect();
 			}
 		}
 		case "dodaj" {
 #sprawdzenie czy wyraz1 jest w bazie i pobranie wiersza w którym się znajduje
 			if ($w1)
 			{
-				$dbh = DBI->connect('dbi:mysql:grzesiekg','grzesiekg','perltest123')
-				or die "Connection Error: $DBI::errstr\n";
-				$dbh->{'mysql_enable_utf8'} = 1;
-				$dbh->do('SET NAMES utf8');
 				$sth = $dbh->prepare( "
 			            SELECT *
 			            FROM synonimy
@@ -88,10 +90,6 @@ if (param)
 #sprawdzenie czy wyraz2 jest w bazie i pobranie wiersza w ktorym sie znajduje
 			if ($w2)
 			{
-				$dbh = DBI->connect('dbi:mysql:grzesiekg','grzesiekg','perltest123')
-				or die "Connection Error: $DBI::errstr\n";
-				$dbh->{'mysql_enable_utf8'} = 1;
-				$dbh->do('SET NAMES utf8');
 				$sth = $dbh->prepare( "
 			            SELECT *
 			            FROM synonimy
@@ -173,10 +171,6 @@ if (param)
 			if ($w1)
 			{
 #ustanowienie połączenia z bazą danych, przygotowanie zapytania do wykonania w bazie
-				$dbh = DBI->connect('dbi:mysql:grzesiekg','grzesiekg','perltest123')
-				or die "Connection Error: $DBI::errstr\n";
-				$dbh->{'mysql_enable_utf8'} = 1;
-				$dbh->do('SET NAMES utf8');
 				$sth = $dbh->prepare( "
 			            SELECT *
 			            FROM synonimy
@@ -245,10 +239,6 @@ if (param)
 			if ($w1 && $w2)
 			{
 #ustanowienie połączenia z bazą danych, przygotowanie zapytania do wykonania w bazie
-				$dbh = DBI->connect('dbi:mysql:grzesiekg','grzesiekg','perltest123')
-				or die "Connection Error: $DBI::errstr\n";
-				$dbh->{'mysql_enable_utf8'} = 1;
-				$dbh->do('SET NAMES utf8');
 				$sth = $dbh->prepare( "
 			            SELECT *
 			            FROM synonimy
